@@ -37,7 +37,11 @@
 #include "x_keymap.h"
 #include "sdl_zoom.h"
 
+#ifdef _WIN32
+extern HWND vigs_window;
+#else
 extern Window vigs_window;
+#endif
 extern uint32_t vigs_window_width;
 extern uint32_t vigs_window_height;
 
@@ -971,7 +975,11 @@ void sdl_display_init(DisplayState *ds, int full_screen, int no_frame)
             fprintf(stderr, "Cannot get SDL WM info\n");
             exit(1);
         }
+#ifdef _WIN32
+        vigs_window = wm_info.window;
+#else
         vigs_window = wm_info.info.x11.window;
+#endif
     }
 }
 #endif
