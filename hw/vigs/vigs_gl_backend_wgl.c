@@ -34,6 +34,8 @@
 #include <GL/gl.h>
 #include <GL/wglext.h>
 
+HWND vigs_window = 0;
+
 #define VIGS_WGL_WIN_CLASS "VIGSWinClass"
 
 #define VIGS_WGL_GET_PROC(proc_type, proc_name, label) \
@@ -709,7 +711,7 @@ struct vigs_backend *vigs_gl_backend_create(void *display)
     }
 
     VIGS_LOG_DEBUG("created");
-
+	
     return &gl_backend_wgl->base.base;
 
 fail:

@@ -58,7 +58,11 @@
 
 struct work_queue;
 
+#ifdef _WIN32
+extern void *vigs_display;
+#else
 extern Display *vigs_display;
+#endif
 extern struct work_queue *vigs_render_queue;
 extern struct winsys_interface *vigs_wsi;
 

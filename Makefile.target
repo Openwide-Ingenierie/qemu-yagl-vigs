@@ -156,6 +156,10 @@ dummy := $(call unnest-vars,.., \
 all-obj-y += $(common-obj-y)
 all-obj-$(CONFIG_SOFTMMU) += $(block-obj-y)
 
+ifdef CONFIG_WIN32
+LIBS+=-lgdi32
+endif
+
 ifndef CONFIG_HAIKU
 LIBS+=-lm
 endif

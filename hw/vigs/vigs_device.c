@@ -37,18 +37,24 @@
 #include "hw/work_queue.h"
 #include "ui/console.h"
 #include "qemu/main-loop.h"
+#ifndef _WIN32
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#endif
 
 #define PCI_VENDOR_ID_VIGS 0x19B2
 #define PCI_DEVICE_ID_VIGS 0x1011
 
 #define VIGS_IO_SIZE 0x1000
 
+#ifdef _WIN32
+void *vigs_display = NULL;
+#else
 Display *vigs_display = NULL;
+XVisualInfo *vigs_visual_info = NULL;
+#endif
 struct work_queue *vigs_render_queue = NULL;
 struct winsys_interface *vigs_wsi = NULL;
-XVisualInfo *vigs_visual_info = NULL;
 
 typedef struct VIGSState
 {
@@ -78,10 +84,12 @@ typedef struct VIGSState
     uint32_t reg_int;
 } VIGSState;
 
+#ifndef _WIN32
 static int x_error_handler(Display *dpy, XErrorEvent *e)
 {
     return 0;
 }
+#endif
 
 #define TYPE_VIGS_DEVICE "vigs"
 
@@ -284,6 +292,8 @@ static int vigs_device_init(PCIDevice *dev)
 {
     VIGSState *s = DO_UPCAST(VIGSState, dev.pci_dev, dev);
     struct vigs_backend *backend = NULL;
+
+#ifndef _WIN32
     char buff[100];
 
     XSetErrorHandler(x_error_handler);
@@ -295,6 +305,7 @@ static int vigs_device_init(PCIDevice *dev)
         fprintf(stderr, "Cannot open X display\n");
         exit(1);
     }
+#endif
 
     vigs_render_queue = work_queue_create("render_queue");
 
@@ -336,9 +347,12 @@ static int vigs_device_init(PCIDevice *dev)
         goto fail;
     }
 
+#ifndef _WIN32
     sprintf(buff, "0x%lX", vigs_visual_info->visualid);
-    setenv("SDL_VIDEO_X11_VISUALID", buff, 1);
 
+    setenv("SDL_VIDEO_X11_VISUALID", buff, 1);
+#endif
+	
     s->fenceman = vigs_fenceman_create();
 
     s->fence_ack_bh = qemu_bh_new(vigs_fence_ack_bh, s);
